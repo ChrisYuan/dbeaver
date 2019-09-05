@@ -79,6 +79,10 @@ class ResultSetDataReceiver implements DBDDataReceiver {
         this.targetDataContainer = targetDataContainer;
     }
 
+    private DBSDataContainer getDataContainer() {
+        return targetDataContainer != null ? targetDataContainer : resultSetViewer.getDataContainer();
+    }
+
     public List<Throwable> getErrorList() {
         return errorList;
     }
@@ -103,7 +107,7 @@ class ResultSetDataReceiver implements DBDDataReceiver {
             columnsCount = rsAttributes.size();
 
             // Extract column info
-            metaColumns = DBUtils.getAttributeBindings(session, resultSetViewer.getDataContainer(), metaData);
+            metaColumns = DBUtils.getAttributeBindings(session, getDataContainer(), metaData);
 
             resultSetViewer.setMetaData(resultSet, metaColumns);
         }
@@ -156,7 +160,7 @@ class ResultSetDataReceiver implements DBDDataReceiver {
             try {
                 // Read locators' metadata
                 DBSEntity entity = null;
-                DBSDataContainer dataContainer = targetDataContainer != null ? targetDataContainer : resultSetViewer.getDataContainer();
+                DBSDataContainer dataContainer = getDataContainer();
                 if (dataContainer instanceof DBSEntity) {
                     entity = (DBSEntity) dataContainer;
                 }
@@ -178,7 +182,7 @@ class ResultSetDataReceiver implements DBDDataReceiver {
                 resultSetViewer.getActivePresentation().refreshData(true, false, !metadataChanged);
                 resultSetViewer.updateStatusMessage();
             } else {
-                if (resultSetViewer.getDataContainer().getDataSource().getContainer().getPreferenceStore().getBoolean(ResultSetPreferences.RESULT_SET_REREAD_ON_SCROLLING)) {
+                if (getDataContainer().getDataSource().getContainer().getPreferenceStore().getBoolean(ResultSetPreferences.RESULT_SET_REREAD_ON_SCROLLING)) {
                     ResultSetRow currentRow = resultSetViewer.getCurrentRow();
                     resultSetViewer.setData(tmpRows, currentRow == null ? 0 : currentRow.getVisualNumber());
                 } else {
